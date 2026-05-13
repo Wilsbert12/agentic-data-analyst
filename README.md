@@ -50,17 +50,21 @@ All non-CSV context ends up in Chroma regardless of input format. Schema images 
 
 ---
 
-## Data Loading — Why pandas?
+## Design Decisions
 
+**Context files are not stored permanently.**
+Data cards, data dictionaries, and schema images are sent to Claude during the setup phase to build understanding — but they are not embedded and stored in Chroma directly. Instead, Claude's resulting understanding of the dataset (schema summary, confirmed key relationships, clarified handling rules) is what gets stored. This keeps Chroma lean and focused on actionable knowledge rather than raw input material. The original context files remain in the context/ folder and can be re-used if the setup phase is re-run.
+
+**CSV loading via pandas, not raw SQLite.**
 CSVs are loaded via pandas `read_csv()` rather than directly into SQLite for several reasons:
 
 - **Type inference** — pandas automatically detects integers, floats, strings, and dates. Building this manually would require sampling columns and attempting casts — a worse version of something pandas already does reliably.
-- **Bad data handling** — mixed type columns and unconvertible values are handled gracefully via `errors='coerce'`, turning bad values into NaN rather than crashing the load.
+- **Bad data handling** — mixed type columns and unconvertible values are handled gracefully, turning bad values into NaN rather than crashing the load.
 - **Simplicity** — `df.to_sql()` creates the SQLite table with correct types already set, replacing manual `CREATE TABLE` and `INSERT` logic entirely.
 
 Each CSV in the `data/` folder is loaded as a separate table in SQLite, using the filename (without extension) as the table name. The agent can query across tables using standard SQL joins.
 
-**Scale note:** pandas loads data into memory — this approach works well for typical analytical datasets but will hit limits on very large files (multi-GB range). In a production environment with datasets of that size, you would skip pandas and query a database directly. For the scope of this project, pandas is the right tool.
+**Scale note:** pandas loads data into memory — this works well for typical analytical datasets but will hit limits on very large files (multi-GB range). In a production environment with datasets of that size, you would skip pandas and query a database directly.
 
 ---
 
@@ -116,7 +120,7 @@ The key is passed through for each session and never stored. If you have concern
 ## V2 — Planned
 
 - **Ollama integration** — swap Claude for a locally running open-source model via `.env` config flag, demonstrating LLM provider flexibility without code changes. Known limitation: Claude vision is used in V1 to preprocess schema images into text for Chroma. In Ollama mode this is no longer possible without the Anthropic API. Two options under consideration: (1) drop image input in Ollama mode and document it as a limitation, or (2) integrate a separate open-source vision model alongside Ollama for the preprocessing step. To be decided.
-- **Kaggle API integration** — pull datasets directly by providing a Kaggle dataset URL, without manual downloading.
+- **Kaggle API integration** — pull datasets directly by providing a Kaggle dataset URL, without manual downloading. The Kaggle API returns dataset files and metadata (description, column info, tags). Open question: whether schema diagram images uploaded as part of a dataset (e.g. the Olist ERD) are included in the API download — if yes, all three input types (CSVs, data card, schema image) could be automated. To be verified.
 - **Multi-session persistence** — conversation history maintained across sessions, not just within a single session.
 
 ---
@@ -125,8 +129,9 @@ The key is passed through for each session and never stored. If you have concern
 
 **Phase 1 — MVP locally (in progress)**
 - [x] CSV loading via pandas → SQLite
-- [ ] Automatic dataset profiling on upload — shape, dtypes, NaN rates, unique value counts, distributions (matplotlib → base64 → frontend)
-- [ ] Schema extraction + column samples passed to agent
+- [x] Dataset profiling (shape, dtypes, NaN rates, unique value counts) — used internally as context for Claude during setup, not a user-facing output. Expanding to user-facing visualisations (distributions, histograms) is deferred — most users will be working with Kaggle datasets where this information is already available in the data card.
+- [x] Schema confirmation loop — Claude reviews schema, sample rows, and profiling stats, asks clarifying questions, and outputs [SCHEMA CONFIRMED] when the dataset is fully understood
+- [x] Store confirmed schema understanding in Chroma — full setup conversation (schema analysis, clarifying questions, confirmed handling rules) stored as a single document. The setup conversation is also saved as a human-readable JSON file in sessions/.
 - [ ] NL → SQL → answer core loop
 - [ ] Simple HTML/JS frontend + FastAPI backend
 
