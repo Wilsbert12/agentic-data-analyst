@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 import anthropic
 import json
 import chromadb
+from langchain.agents import create_agent
 from langchain_anthropic import ChatAnthropic
-from langchain_community.utilities import SQLDatabase
-from langchain_community.agent_toolkits import create_sql_agent
+from langchain_core.messages import HumanMessage, AIMessage
 
 # =============================================================================
 # 2. DATABASE CONNECTION
@@ -213,114 +213,146 @@ print(tables)
 # 4. ANALYTICAL PHASE — Core Loop
 # =============================================================================
 
-messages = []
-# Accept multi line input
-print("What is the business question you want to analyse? (type END on a new line when done):")
-lines = []
-while True:
-    line = input()
-    if line.strip() == "END":
-        break
-    lines.append(line)
-    # Exit loop if user inputs "EXIT"
-    if line.strip() == "EXIT":
-        exit()
-user_input = "\n".join(lines)
-# Do not react to empty input
-if not user_input.strip():
-    print("Please enter a question.")
-    user_input = "\n".join(lines)
-messages.append(
-        {
-        "role": "user",
-        "content": user_input
-        })
+# Setup once before the core loop
+# Setting up the agent
+connection.close()
+llm = ChatAnthropic(model="claude-sonnet-4-6", api_key=os.getenv("ANTHROPIC_API_KEY"))
+# Building an SQL Tool for the agent to use (function)
+def run_sql(query: str) -> str:
+    """Execute a SQL query against the SQLite database and return the results."""
+    conn = sqlite3.connect("sessions/database.sqlite")
+    try:
+        result = conn.execute(query).fetchall()
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+    finally:
+        conn.close()
+# Defining the model
+agent = create_agent(
+    model=llm,
+    tools=[run_sql]
+)
 
-#Load the Data schema understanding from the setup conversation into the system prompt
+# Setting up counter outside conversation loop to set documnent IDs for Chroma (RAG)
+analysis_count = 0
+
+# Load the Data schema understanding from the setup conversation into the system prompt
 with open("sessions/setup_conversation.json") as f:
     schema_context = json.load(f)
     schema_text = "\n\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in schema_context])
 
-# Loading information from Chroma that matches the user input (excluding setup conversation, redundant)
-results = collection.query(
-    query_texts=[user_input],
-    n_results=3,
-    where={"type": {"$ne": "setup"}}
-)
-context_past_conversations = "\n\n".join(results['documents'][0])
-
-system_prompt = f"""
-You are an expert data analyst. You have full knowledge of the dataset schema and confirmed handling rules from the setup phase:
-
-{schema_text}
-
-Additional context from past analyses, if available:
-{context_past_conversations}
-
-When the user asks a business question, follow these steps:
-
-1. Interpret the question and identify what data is needed to answer it.
-2. If the question requires multiple queries, break it down into clear steps.
-3. If anything is unclear, ask the user clarifying questions before proceeding.
-4. If there are multiple steps, walk the user through your planned approach and confirm before executing.
-5. Execute the necessary queries.
-6. Present the results in plain language that directly answers the original business question.
-
-Always ground your answers in actual query results — never guess or estimate.
-"""
-
-
-print("Analysing business problem...")
-
-
-#setting up the agent
-connection.close()
-db = SQLDatabase.from_uri("sqlite:///sessions/database.sqlite")
-
-llm = ChatAnthropic(model="claude-sonnet-4-6", api_key=os.getenv("ANTHROPIC_API_KEY"))
-
-agent = create_sql_agent(
-    llm=llm,
-    db=db,
-    verbose=True
-)
-#Setting up counter outside conversation loop to set documnent IDs for Chroma (RAG)
-analysis_count = 0
-
-response = agent.invoke({
-    "input": user_input,
-    "system": system_prompt
-})
-
-messages = []
-messages.append({
-        "role": "user",
-        "content": user_input
-        })
-messages.append(
-        {
-        "role": "assistant",
-        "content": response["output"]
-        })
-messages.append({
-    "role": "user", 
-    "content": "Please summarise the above analysis concisely for future reference."
-    })
-summarisation_prompt = "summarize the following conversation for easy retrival of relevant information"
-summary = client.messages.create(
-    model="claude-sonnet-4-6",
-    max_tokens=8192,
-    system=summarisation_prompt,
-    messages=messages
-)
-
-summary_text = summary.content[0].text
-
-analysis_count += 1
-collection.upsert(
-    documents=[summary_text],
-    ids=[f"analysis_{analysis_count}"],
-    metadatas=[{"type": "analysis"}]
+# Core loop
+while True:
+    # Accept multi line input
+    print("What is the business question you want to analyse? (type END on a new line when done):")
+    lines = []
+    while True:
+        line = input()
+        if line.strip() == "END":
+            break
+        lines.append(line)
+        # Exit loop if user inputs "EXIT"
+        if line.strip() == "EXIT":
+            exit()
+    user_input = "\n".join(lines)
+    # Do not react to empty input
+    if not user_input.strip():
+        continue
+    # Loading information from Chroma that matches the user input (excluding setup conversation, redundant)
+    results = collection.query(
+        query_texts=[user_input],
+        n_results=3,
+        where={"type": {"$ne": "setup"}}
     )
+    context_past_conversations = "\n\n".join(results['documents'][0])
+    # System prompt
+    system_prompt = f"""
+    You are an expert data analyst. You have full knowledge of the dataset schema and confirmed handling rules from the setup phase:
 
-print(response["output"])
+    {schema_text}
+
+    Additional context from past analyses, if available:
+    {context_past_conversations}
+
+    When the user asks a business question, follow these steps:
+
+    1. Before doing anything else, assess whether the question is specific enough to answer correctly. If it is ambiguous, vague, or could be interpreted in multiple ways, ask clarifying questions. Do not assume criteria or definitions — always ask.
+    2. Once the question is clear, identify what data is needed and how to retrieve it via SQL.
+    3. If the answer requires multiple queries, break it down into clear steps and walk the user through your plan before executing.
+    4. Execute the necessary queries.
+    5. Present the results in plain language that directly answers the original business question. Be precise — do not confuse attributes of a record (e.g. the city a seller is located in) with the entity itself (e.g. the seller).
+
+    Always ground your answers in actual query results — never guess or estimate.
+    Always ask before assuming criteria, thresholds, or definitions that are not explicitly stated in the question.
+    """
+    # Calling the agent with user input and sytstem promt incl. setup info and past conversations
+    response = agent.invoke({
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_input}
+        ]
+    })
+    # Building messages to summarize and save in Chroma (RAG) later
+    messages = []
+    messages.append({
+            "role": "user",
+            "content": user_input
+            })
+    messages.append(
+            {
+            "role": "assistant",
+            "content": response["messages"][-1].content
+            })
+    # Starting an "inner loop" after each initial question until answer is satisfactory
+    satisfied = False
+    # Asking FUP question and accepting multiline input
+    while not satisfied:
+        print(response["messages"][-1].content)
+        print("\nDoes this answer your question? Type YES or provide follow-up (END to submit):")
+        lines = []
+        while True:
+            line = input()
+            if line.strip() == "END":
+                break
+            if line.strip() == "YES":
+                satisfied = True
+                break
+            if line.strip() == "EXIT":
+                exit()
+            lines.append(line)
+        if satisfied:
+            break
+        inner_user_input = "\n".join(lines)
+        if not inner_user_input.strip():
+            continue
+        # Adding new user input to messages to summarize and save in Chroma (RAG) later
+        messages.append({"role": "user", "content": inner_user_input})
+        # Passing user input, system prompt, and messages as chat history to the agent
+        response = agent.invoke({
+            "messages": [{"role": "system", "content": system_prompt}] + messages
+        })
+        # Adding response to to messages summarize and save in Chroma (RAG) later
+        messages.append({"role": "assistant", "content": response["messages"][-1].content})
+    # When exiting the "inner loop" add a user message, since last object must be user message to pass to llm
+    messages.append({
+        "role": "user", 
+        "content": "Please summarise the above analysis concisely for future reference."
+        })
+    # Summarization of messages and saving to Chroma (RAG)
+    summarisation_prompt = "summarize the following conversation for easy retrival of relevant information"
+    summary = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        system=summarisation_prompt,
+        messages=messages
+    )
+    summary_text = summary.content[0].text
+    analysis_count += 1
+    collection.upsert(
+        documents=[summary_text],
+        ids=[f"analysis_{analysis_count}"],
+        metadatas=[{"type": "analysis"}]
+        )
+
+    print(response["messages"][-1].content)
