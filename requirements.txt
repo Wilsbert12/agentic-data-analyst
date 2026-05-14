@@ -16,6 +16,7 @@ coloredlogs==15.0.1
 dataclasses-json==0.6.7
 distro==1.9.0
 docstring_parser==0.18.0
+duckdb==1.5.2
 durationpy==0.10
 filelock==3.29.0
 flatbuffers==25.12.19

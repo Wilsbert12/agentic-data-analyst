@@ -1,4 +1,4 @@
-import sqlite3
+import duckdb
 from pathlib import Path
 import pandas as pd
 import base64
@@ -14,16 +14,13 @@ if RUN_SETUP:
     load_dotenv()
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    # Creating and connecting an in-memory database
-    connection = sqlite3.connect(":memory:")
+    # Creating and connecting an database
+    connection = duckdb.connect("sessions/database.duckdb")
 
-    # Load each CSV into pandas then into SQLite
+    # Load each CSV into pandas then into DuckDB
     for file in Path("data/").glob("*.csv"):
         df = pd.read_csv(file)
-        df.to_sql(file.stem, connection, if_exists="replace", index=False)
-
-    # Committing the changes
-    connection.commit()
+        connection.execute(f"CREATE OR REPLACE TABLE {file.stem} AS SELECT * FROM df")
 
     # Build context message for Claude API from files in the context/ folder
     # Supports: .txt (data cards), .csv (data dictionaries), .jpg/.png (schema images via vision)
@@ -62,7 +59,7 @@ if RUN_SETUP:
                 )
         else: pass
 
-    # Function to return basic analytics as a string
+    # Function to return basic analytics as a string to pass to llm
     def basic_analysis (df):
         return (str(df.shape) + "\n\n" + 
                 df.dtypes.to_string() + "\n\n" + 
@@ -77,7 +74,7 @@ if RUN_SETUP:
             "type": "text",
             "text": f"Sample rows from table '{file.stem}' (5 rows, all columns):"
             })
-        df_sample = pd.read_sql(f"SELECT * FROM {file.stem} LIMIT 5", connection)
+        df_sample = connection.execute(f"SELECT * FROM {file.stem} LIMIT 5").df()
         file_content = df_sample.to_string(max_cols=None, line_width=None)
         content.append(
             {
@@ -175,7 +172,7 @@ if RUN_SETUP:
         content = message["content"]
         conversation_text += f"{role}: {content}\n\n"
 
-    # Save full conversation to file for reference (purely for convenience)
+    # Save full conversation to file for reference. Used to bypass Chroma (to always give llm setup context)
     with open("sessions/setup_conversation.json", "w") as f:
         json.dump(messages[1:], f, indent=2)
     print("Setup conversation saved to sessions/setup_conversation.json")
