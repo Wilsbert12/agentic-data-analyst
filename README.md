@@ -73,15 +73,12 @@ This distinction means cross-analysis memory is handled by RAG, while within-ana
 **Schema context injected directly for SQL generation, not retrieved via RAG.**
 Claude understands SQL natively — no examples or teaching needed. What it does need is accurate, complete schema information (table names, column names, types, relationships) to write correct SQL for the specific dataset. Rather than relying on Chroma similarity search to retrieve the right schema chunks — which risks missing a table or column — the full confirmed schema is injected directly into every analytical prompt. This is a small fixed token cost but guarantees Claude always has complete information. RAG is used for richer contextual knowledge (data card, handling rules, past analyses); schema is always injected in full.
 
-**DuckDB for querying, pandas for profiling.**
-DuckDB is used as the query engine rather than SQLite for two reasons:
+**CSV loading via pandas → SQLite.**
+CSVs are loaded via pandas `read_csv()` for type inference and data quality handling, then written to a file-based SQLite database via `df.to_sql()`. SQLite was chosen over DuckDB for full compatibility with LangGraph's SQL tooling — DuckDB's SQLAlchemy dialect has known compatibility issues with LangChain's database connectors. SQLite is fully supported and sufficient for this project's scale.
 
-- **Direct CSV querying** — DuckDB can query CSV files directly with standard SQL syntax (), eliminating a separate loading step.
-- **Analytics performance** — DuckDB is purpose-built for analytical queries on flat files, faster than SQLite for aggregations and joins.
+pandas is used for the profiling step (shape, dtypes, NaN rates, unique counts) during setup, reading each CSV before it is loaded into SQLite.
 
-pandas is still used for the profiling step (shape, dtypes, NaN rates, unique counts) during setup — pandas profiling methods don't work directly on a DuckDB connection, so data is read into a temporary dataframe for that step only.
-
-**Scale note:** DuckDB handles data larger than RAM more gracefully than pandas in-memory loading. For very large datasets, DuckDB is the more production-realistic choice.
+**Scale note:** pandas loads data into memory — this works well for typical analytical datasets but will hit limits on very large files (multi-GB range). In a production environment with datasets of that size, a server-based database would be more appropriate.
 
 ---
 
@@ -93,7 +90,7 @@ pandas is still used for the profiling step (shape, dtypes, NaN rates, unique co
 | Backend | FastAPI | Industry standard for ML API serving |
 | Agent framework | LangGraph | Modern LangChain agent runtime — recommended approach as of LangChain v1.0 (October 2025); replaces legacy `create_sql_agent` and `AgentExecutor` |
 | LLM | Claude API | Best available; swappable via config |
-| Data layer | SQLite | In-memory, no server, fast for analytics queries |
+| Data layer | SQLite | File-based, no server, full LangGraph compatibility |
 | Tracing | LangSmith | Native LangChain tracing and evaluation |
 | Memory | Chroma | Conversational memory via RAG |
 | Containerisation | Docker | Frontend + backend as separate containers |
@@ -150,8 +147,7 @@ The key is passed through for each session and never stored. If you have concern
 - [x] Schema confirmation loop — Claude reviews schema, sample rows, and profiling stats, asks clarifying questions, and outputs [SCHEMA CONFIRMED] when the dataset is fully understood
 - [x] Store confirmed schema understanding in Chroma and as a JSON file in sessions/ — the JSON is the primary source for schema injection into every analytical prompt (see Design Decisions). the same content is also stored in the RAG vector store for future retrieval of past analyses.
 - [x] NL → SQL → answer core loop (LangGraph SQL agent)
-- [ ] Memory consolidation — after each completed analysis, a summary is generated and stored in the RAG vector store as a new document. Retrieved via similarity search on subsequent questions to provide relevant past context.
-  - ⚠️ **Known issue:** Analyses are currently saved to the RAG vector store regardless of quality. If the agent gives a wrong or incomplete answer and the user corrects it, the bad analysis still gets saved and could pollute future RAG retrievals. Fix: only save to the RAG vector store after the user confirms the answer is correct (i.e. after typing YES in the confirmation loop). This is the next priority fix.
+- [x] Memory consolidation — after each completed analysis, a clean summary is generated and stored in the RAG vector store. Only saved when the user confirms the answer is correct (YES in the confirmation loop). Misunderstandings, corrections, and dead ends are excluded from the summary via the summarisation prompt.
 - [ ] Simple HTML/JS frontend + FastAPI backend
 
 **Phase 2 — AWS deployment + CI/CD**

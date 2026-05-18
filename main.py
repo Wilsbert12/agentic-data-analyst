@@ -29,9 +29,21 @@ collection = chroma_client.get_or_create_collection(name="schema_context")
 # 3. SETUP PHASE — Schema Understanding
 # =============================================================================
 
-#Setting up the Claude client
+# Setting up the Claude client
 load_dotenv()
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+# Starting a new session: Option to delete content from previous sessions
+print("Start fresh or continue previous session?")
+print("NEW — deletes all previous analyses from memory and starts fresh")
+print("CONTINUE — loads previous analyses and continues from where you left off")
+session_choice = input().strip().upper()
+if session_choice == "NEW":
+    existing = collection.get()
+    ids_to_delete = [id for id in existing['ids'] if id.startswith('analysis_')]
+    if ids_to_delete:
+        collection.delete(ids=ids_to_delete)
+        print(f"Cleared {len(ids_to_delete)} previous analyses.")
 
 RUN_SETUP = False
 if RUN_SETUP:
@@ -285,6 +297,9 @@ while True:
 
     Always ground your answers in actual query results — never guess or estimate.
     Always ask before assuming criteria, thresholds, or definitions that are not explicitly stated in the question.
+
+    When you have completed an analysis with actual query results, end your response with [ANALYSIS COMPLETE].
+    Do not include this marker when asking clarifying questions.
     """
     # Calling the agent with user input and sytstem promt incl. setup info and past conversations
     response = agent.invoke({
@@ -308,14 +323,19 @@ while True:
     satisfied = False
     # Asking FUP question and accepting multiline input
     while not satisfied:
+        # Printing the response
         print(response["messages"][-1].content)
-        print("\nDoes this answer your question? Type YES or provide follow-up (END to submit):")
+        if "[ANALYSIS COMPLETE]" in response["messages"][-1].content:
+            print("\nDoes this answer your question? Type YES or provide follow-up (END to submit):")
+        else:
+            # just capture follow-up input without the satisfaction prompt
+            print("\nProvide follow-up (type END when done):")
         lines = []
         while True:
             line = input()
             if line.strip() == "END":
                 break
-            if line.strip() == "YES":
+            if "[ANALYSIS COMPLETE]" in response["messages"][-1].content and line.strip() == "YES":
                 satisfied = True
                 break
             if line.strip() == "EXIT":
@@ -339,20 +359,35 @@ while True:
         "role": "user", 
         "content": "Please summarise the above analysis concisely for future reference."
         })
-    # Summarization of messages and saving to Chroma (RAG)
-    summarisation_prompt = "summarize the following conversation for easy retrival of relevant information"
-    summary = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=8192,
-        system=summarisation_prompt,
-        messages=messages
-    )
-    summary_text = summary.content[0].text
-    analysis_count += 1
-    collection.upsert(
-        documents=[summary_text],
-        ids=[f"analysis_{analysis_count}"],
-        metadatas=[{"type": "analysis"}]
+    
+    if satisfied:
+        # Summarization of messages and saving to Chroma (RAG)
+        summarisation_prompt = summarisation_prompt = """
+        Summarise the following data analysis conversation for storage in a retrieval system.
+
+        Include only:
+        - The confirmed business question that was answered
+        - The key analytical findings and conclusions
+        - The SQL logic or approach that produced the correct results
+        - Any important data quality notes or caveats that affected the analysis
+
+        Exclude:
+        - Misunderstandings or incorrect answers that were corrected
+        - Dead ends or failed approaches
+        - Back-and-forth clarification exchanges
+        - Any part of the conversation that did not contribute to the final answer
+        """
+        summary = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=8192,
+            system=summarisation_prompt,
+            messages=messages
         )
 
-    print(response["messages"][-1].content)
+        summary_text = summary.content[0].text
+        analysis_count += 1
+        collection.upsert(
+            documents=[summary_text],
+            ids=[f"analysis_{analysis_count}"],
+            metadatas=[{"type": "analysis"}]
+            )
