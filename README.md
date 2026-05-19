@@ -171,7 +171,7 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 
 ## Project Status
 
-**Phase 1 — MVP locally (in progress)**
+**Phase 1 — MVP locally ✓**
 - [x] CSV loading via pandas → SQLite
 - [x] Dataset profiling (shape, dtypes, NaN rates, unique value counts) — used internally as context for Claude during setup, not a user-facing output. Expanding to user-facing visualisations (distributions, histograms) is deferred — most users will be working with Kaggle datasets where this information is already available in the data card.
 - [x] Schema confirmation loop — Claude reviews schema, sample rows, and profiling stats, asks clarifying questions, and outputs [SCHEMA CONFIRMED] when the dataset is fully understood
@@ -179,16 +179,23 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 - [x] NL → SQL → answer core loop (LangGraph SQL agent)
 - [x] Memory consolidation — after each completed analysis, a clean summary is generated and stored in the RAG vector store. Only saved when the user confirms the answer is correct (YES in the confirmation loop). Misunderstandings, corrections, and dead ends are excluded from the summary via the summarisation prompt.
 - [x] Simple HTML/JS frontend + FastAPI backend — MVP complete
+- [x] Error handling — structured JSON errors, frontend toasts, automatic 429 retry with prompt caching
 
 **Phase 2 — AWS deployment + CI/CD**
-- [ ] Dockerfile(s), ECR, ECS, GitHub Actions
+- [ ] UI/UX update — nav bar, about section, static content
+- [ ] Dockerfile + ECR + ECS
+- [ ] GitHub Actions CI/CD pipeline
+- [ ] AWS deployment + billing alarms and budget limits
+- [ ] Architecture diagram
+- [ ] Publish to portfolio (architecture diagram, screenshots)
 
 **Phase 3 — Feature development**
-- [x] Error handling — structured JSON errors, frontend toasts, automatic 429 retry
+- [ ] Kaggle API integration — pull datasets directly by URL
 - [ ] LangSmith tracing
-- [ ] NL → pandas transformation layer
-- [ ] Recommendation layer
+- [ ] Session persistence (SQLite → RDS Postgres)
+- [ ] User authentication
+- [ ] Ollama integration — swap Claude for a local open-source model via config
 
-**Phase 4 — Polish and documentation**
-- [ ] README, architecture diagram, demo GIF
-- [ ] Portfolio write-up
+**Phase 4 — Stretch**
+- [ ] NL → pandas transformation layer
+- [ ] Demo GIF
