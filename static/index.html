@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic Data Analyst</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #181c26;
+      --border:   #252b3a;
+      --accent:   #4fd1a5;
+      --accent2:  #2a8f6f;
+      --text:     #e8eaf0;
+      --muted:    #7a8299;
+      --tag-bg:   #1e2436;
+      --error:    #e05c5c;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2.5rem;
+      background: rgba(15,17,23,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .nav-brand span { color: var(--accent); }
+
+    .nav-status {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-status.active { color: var(--accent); }
+
+    /* ── MAIN LAYOUT ── */
+    .app {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 61px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 300px;
+      min-width: 300px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .sidebar-section h3 {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+
+    /* ── API KEY INPUT ── */
+    .api-key-input {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .api-key-input input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.6rem 0.8rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .api-key-input input:focus { border-color: var(--accent); }
+    .api-key-input input::placeholder { color: var(--muted); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0f1117;
+    }
+
+    .btn-primary:hover { background: #6fe0b8; }
+    .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+
+    .btn-danger:hover { background: var(--error); color: white; }
+
+    /* ── FILE UPLOAD ── */
+    .upload-zone {
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-zone:hover { border-color: var(--accent); background: rgba(79,209,165,0.04); }
+    .upload-zone.dragover { border-color: var(--accent); background: rgba(79,209,165,0.08); }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-zone p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .upload-zone p span { color: var(--accent); }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .file-item {
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 0.25rem 0.5rem;
+      background: var(--tag-bg);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .file-item::before { content: '✓'; color: var(--accent); font-size: 0.7rem; }
+
+    /* ── PHASE INDICATOR ── */
+    .phase-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .phase-step {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .phase-step.done { color: var(--accent); }
+    .phase-step.active { color: var(--text); }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .phase-step.done .step-dot { background: var(--accent); }
+    .phase-step.active .step-dot { background: var(--text); box-shadow: 0 0 6px var(--accent); }
+
+    /* ── CHAT AREA ── */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── MESSAGES ── */
+    .message {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-width: 800px;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user { align-self: flex-end; align-items: flex-end; }
+    .message.assistant { align-self: flex-start; }
+    .message.system-msg { align-self: center; }
+
+    .message-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .message.user .message-label { color: var(--accent2); }
+
+    .message-bubble {
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .message.user .message-bubble {
+      background: var(--accent2);
+      color: var(--text);
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.assistant .message-bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 2px;
+      color: var(--text);
+    }
+
+    .message.system-msg .message-bubble {
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-style: italic;
+      border: none;
+      padding: 0.3rem 0;
+    }
+
+    /* Markdown styling inside bubbles */
+    .message-bubble h1, .message-bubble h2, .message-bubble h3 {
+      font-family: 'DM Serif Display', serif;
+      color: var(--text);
+      margin: 0.8rem 0 0.4rem;
+    }
+
+    .message-bubble h3 { font-size: 1rem; }
+    .message-bubble p { margin-bottom: 0.6rem; }
+    .message-bubble p:last-child { margin-bottom: 0; }
+
+    .message-bubble table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin: 0.6rem 0;
+    }
+
+    .message-bubble th {
+      background: var(--tag-bg);
+      padding: 0.4rem 0.8rem;
+      text-align: left;
+      font-weight: 500;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .message-bubble td {
+      padding: 0.35rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .message-bubble tr:last-child td { border-bottom: none; }
+
+    .message-bubble code {
+      background: var(--tag-bg);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82em;
+      color: var(--accent);
+    }
+
+    .message-bubble pre {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.8rem;
+      overflow-x: auto;
+      margin: 0.6rem 0;
+    }
+
+    .message-bubble pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .message-bubble ul, .message-bubble ol {
+      padding-left: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .message-bubble li { margin-bottom: 0.2rem; }
+    .message-bubble strong { color: var(--text); font-weight: 500; }
+
+    /* ── SATISFACTION PROMPT ── */
+    .satisfaction-bar {
+      padding: 0.8rem 2rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .satisfaction-bar .btn { width: auto; padding: 0.45rem 1rem; }
+
+    /* ── INPUT AREA ── */
+    .chat-input-area {
+      padding: 1rem 2rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 300;
+      resize: none;
+      outline: none;
+      min-height: 44px;
+      max-height: 160px;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--muted); }
+    .chat-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { background: #6fe0b8; }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+    .send-btn svg { width: 18px; height: 18px; color: #0f1117; }
+
+    .input-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ── WELCOME SCREEN ── */
+    .welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .welcome h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .welcome h2 em { font-style: italic; color: var(--accent); }
+
+    .welcome p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    /* ── LOADING INDICATOR ── */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .thinking-dots span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: dot-pulse 1.4s infinite;
+    }
+
+    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.8rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      z-index: 999;
+      animation: slideIn 0.3s ease;
+      max-width: 300px;
+    }
+
+    .toast.error { border-left-color: var(--error); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-brand">Agentic <span>Data Analyst</span></span>
+    <span class="nav-status" id="navStatus">Ready to start</span>
+  </nav>
+
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- API Key -->
+      <div class="sidebar-section">
+        <h3>API Key</h3>
+        <div class="api-key-input">
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+          <button class="btn btn-primary" id="startSessionBtn" onclick="startSession()">Start Session</button>
+        </div>
+      </div>
+
+      <!-- Data Upload -->
+      <div class="sidebar-section" id="uploadSection">
+        <h3>Dataset</h3>
+        <div class="upload-zone" id="dataDropZone">
+          <input type="file" id="dataFiles" multiple accept=".csv" onchange="handleDataFiles(this.files)" />
+          <p><span>Upload CSV files</span><br/>Drag & drop or click</p>
+        </div>
+        <div class="file-list" id="dataFileList"></div>
+      </div>
+
+      <!-- Context Upload -->
+      <div class="sidebar-section" id="contextSection">
+        <h3>Context <span style="color:var(--muted);font-size:0.7rem;font-weight:300">(optional)</span></h3>
+        <div class="upload-zone" id="contextDropZone">
+          <input type="file" id="contextFiles" multiple accept=".txt,.csv,.png,.jpg,.jpeg" onchange="handleContextFiles(this.files)" />
+          <p><span>Data cards, schema images</span><br/>.txt .csv .png .jpg</p>
+        </div>
+        <div class="file-list" id="contextFileList"></div>
+      </div>
+
+      <!-- Start Analysis Button -->
+      <div class="sidebar-section" id="startSection">
+        <button class="btn btn-primary" id="startAnalysisBtn" onclick="startSetup()" disabled>
+          Analyse Dataset
+        </button>
+      </div>
+
+      <!-- Phase Progress -->
+      <div class="sidebar-section" id="phaseSection">
+        <h3>Progress</h3>
+        <div class="phase-steps">
+          <div class="phase-step" id="step1"><div class="step-dot"></div>Session started</div>
+          <div class="phase-step" id="step2"><div class="step-dot"></div>Data loaded</div>
+          <div class="phase-step" id="step3"><div class="step-dot"></div>Schema confirmed</div>
+          <div class="phase-step" id="step4"><div class="step-dot"></div>Analysis ready</div>
+        </div>
+      </div>
+
+      <!-- Clear Memory -->
+      <div class="sidebar-section" id="clearSection" class="hidden">
+        <button class="btn btn-danger" id="clearMemoryBtn" onclick="clearMemory()">
+          Clear Memory
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- CHAT -->
+    <div class="chat-container">
+
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcomeScreen">
+        <h2>Turn data into<br/><em>business decisions</em></h2>
+        <p>Enter your Anthropic API key, upload your dataset, and start asking questions in plain English.</p>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages hidden" id="chatMessages"></div>
+
+      <!-- Satisfaction bar -->
+      <div class="satisfaction-bar hidden" id="satisfactionBar">
+        <span>Does this answer your question?</span>
+        <button class="btn btn-primary" onclick="confirmSatisfied()">Yes, continue</button>
+        <button class="btn btn-ghost" onclick="focusInput()">Follow up</button>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area hidden" id="chatInputArea">
+        <div class="input-row">
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="Ask a business question..."
+            rows="1"
+            onkeydown="handleKey(event)"
+            oninput="autoResize(this)"
+            disabled
+          ></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <p class="input-hint">Press Enter to send · Shift+Enter for new line</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:8000'
+    let sessionId = null
+    let phase = 'idle' // idle | setup | analysis
+    let analysisComplete = false
+    let dataFiles = []
+    let contextFiles = []
+
+    // ── SESSION ──────────────────────────────────────────────────────
+    async function startSession() {
+      const apiKey = document.getElementById('apiKeyInput').value.trim()
+      if (!apiKey) { showToast('Please enter your API key', 'error'); return }
+
+      try {
+        const res = await fetch(`${API}/create-session`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({api_key: apiKey})
+        })
+        const data = await res.json()
+        sessionId = data.session_id
+        document.getElementById('startSessionBtn').disabled = true
+        document.getElementById('apiKeyInput').disabled = true
+        setStep(1, 'done')
+        setNavStatus('Session active', true)
+        showToast('Session started')
+      } catch (e) {
+        showToast('Failed to connect to server', 'error')
+      }
+    }
+
+    // ── FILE HANDLING ─────────────────────────────────────────────────
+    function handleDataFiles(files) {
+      dataFiles = Array.from(files)
+      renderFileList('dataFileList', dataFiles)
+      checkReadyToAnalyse()
+    }
+
+    function handleContextFiles(files) {
+      contextFiles = Array.from(files)
+      renderFileList('contextFileList', contextFiles)
+    }
+
+    function renderFileList(containerId, files) {
+      const container = document.getElementById(containerId)
+      container.innerHTML = files.map(f => `<div class="file-item">${f.name}</div>`).join('')
+    }
+
+    function checkReadyToAnalyse() {
+      const btn = document.getElementById('startAnalysisBtn')
+      btn.disabled = !(sessionId && dataFiles.length > 0)
+    }
+
+    // ── SETUP PHASE ───────────────────────────────────────────────────
+    async function startSetup() {
+      if (!sessionId || dataFiles.length === 0) return
+
+      showChat()
+      setNavStatus('Loading data...', true)
+      addSystemMessage('Loading your dataset...')
+
+      try {
+        async function checkedFetch(url, opts) {
+          const r = await fetch(url, opts)
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}))
+            throw new Error(`${url.split('/').pop()} failed — ${body.detail || body.error || r.status}`)
+          }
+          return r
+        }
+
+        // Upload data files
+        const dataForm = new FormData()
+        dataForm.append('session_id', sessionId)
+        dataFiles.forEach(f => dataForm.append('files', f))
+        await checkedFetch(`${API}/load-data`, {method: 'POST', body: dataForm})
+        setStep(2, 'done')
+
+        // Upload context files if any
+        if (contextFiles.length > 0) {
+          const ctxForm = new FormData()
+          ctxForm.append('session_id', sessionId)
+          contextFiles.forEach(f => ctxForm.append('files', f))
+          await checkedFetch(`${API}/load-context`, {method: 'POST', body: ctxForm})
+        }
+
+        // Build setup messages
+        await checkedFetch(`${API}/build-setup-messages`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId})
+        })
+
+        addSystemMessage('Analysing schema...')
+        setNavStatus('Analysing schema...', true)
+        showThinking()
+
+        // Initial prompt
+        const initRes = await checkedFetch(`${API}/initial-prompt`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId})
+        })
+        const initData = await initRes.json()
+        hideThinking()
+
+        phase = 'setup'
+        addMessage('assistant', initData.response)
+
+        if (initData.confirmed) {
+          await finishSetup()
+        } else {
+          enableInput('Ask a clarifying question or confirm...')
+        }
+
+      } catch (e) {
+        hideThinking()
+        showToast(e.message || 'Error during setup', 'error')
+        console.error(e)
+      }
+    }
+
+    async function sendSetupReply(userInput) {
+      addMessage('user', userInput)
+      showThinking()
+
+      try {
+        const res = await fetch(`${API}/setup-reply`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId, user_input: userInput})
+        })
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          throw new Error(`setup-reply failed — ${body.detail || body.error || res.status}`)
+        }
+        const data = await res.json()
+        hideThinking()
+        addMessage('assistant', data.response)
+        if (data.confirmed) {
+          await finishSetup()
+        }
+      } catch (e) {
+        hideThinking()
+        showToast(e.message || 'Error during setup', 'error')
+        console.error(e)
+      }
+    }
+
+    async function finishSetup() {
+      try {
+        addSystemMessage('Schema confirmed. Saving context...')
+        for (const endpoint of ['save-setup-convo-to-json', 'save-setup-convo-to-chroma', 'initialise-agent']) {
+          const r = await fetch(`${API}/${endpoint}`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+          })
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}))
+            throw new Error(`${endpoint} failed — ${body.detail || body.error || r.status}`)
+          }
+        }
+        setStep(3, 'done')
+        setStep(4, 'done')
+        phase = 'analysis'
+        setNavStatus('Ready for analysis', true)
+        addSystemMessage('Ready — ask your first business question.')
+        enableInput('What would you like to analyse?')
+        showToast('Dataset ready for analysis')
+      } catch (e) {
+        showToast(e.message || 'Error finishing setup', 'error')
+        console.error(e)
+      }
+    }
+
+    // ── ANALYSIS PHASE ────────────────────────────────────────────────
+    async function sendAnalysisQuestion(userInput) {
+      addMessage('user', userInput)
+      disableInput()
+      showThinking()
+      analysisComplete = false
+      hideSatisfactionBar()
+
+      try {
+        const res = await fetch(`${API}/analysis-outer-loop`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId, user_input: userInput})
+        })
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          throw new Error(`analysis-outer-loop failed — ${body.detail || body.error || res.status}`)
+        }
+        const data = await res.json()
+        hideThinking()
+        addMessage('assistant', data.response)
+        if (data.satisfied) {
+          analysisComplete = true
+          showSatisfactionBar()
+        } else {
+          enableInput('Ask a follow-up or clarify...')
+        }
+      } catch (e) {
+        hideThinking()
+        enableInput('What would you like to analyse?')
+        showToast(e.message || 'Analysis error', 'error')
+        console.error(e)
+      }
+    }
+
+    async function sendFollowUp(userInput) {
+      addMessage('user', userInput)
+      disableInput()
+      showThinking()
+      hideSatisfactionBar()
+
+      const res = await fetch(`${API}/analysis-inner-loop`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({session_id: sessionId, user_input: userInput})
+      })
+      const data = await res.json()
+      hideThinking()
+      addMessage('assistant', data.response)
+
+      if (data.satisfied) {
+        analysisComplete = true
+        showSatisfactionBar()
+      } else {
+        enableInput('Ask a follow-up or clarify...')
+      }
+    }
+
+    async function confirmSatisfied() {
+      hideSatisfactionBar()
+      addSystemMessage('Saving analysis to memory...')
+
+      try {
+        for (const endpoint of ['add-user-msg-to-inner-loop', 'analysis-summary']) {
+          const r = await fetch(`${API}/${endpoint}`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId})
+          })
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}))
+            throw new Error(`${endpoint} failed — ${body.detail || body.error || r.status}`)
+          }
+        }
+        analysisComplete = false
+        addSystemMessage('Analysis saved. Ask your next question.')
+        enableInput('What would you like to analyse next?')
+      } catch (e) {
+        showToast(e.message || 'Failed to save analysis', 'error')
+        console.error(e)
+        enableInput('What would you like to analyse next?')
+      }
+    }
+
+    // ── MESSAGE ROUTING ───────────────────────────────────────────────
+    async function sendMessage() {
+      const input = document.getElementById('chatInput')
+      const userInput = input.value.trim()
+      if (!userInput) return
+
+      input.value = ''
+      autoResize(input)
+
+      if (phase === 'setup') {
+        await sendSetupReply(userInput)
+      } else if (phase === 'analysis') {
+        if (analysisComplete) {
+          await sendFollowUp(userInput)
+        } else {
+          await sendAnalysisQuestion(userInput)
+        }
+      }
+    }
+
+    // ── CLEAR MEMORY ──────────────────────────────────────────────────
+    async function clearMemory() {
+      if (!confirm('This will delete all sessions and data from the server. Continue?')) return
+      try {
+        const r = await fetch(`${API}/clear-all-sessions`, {method: 'POST'})
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}))
+          throw new Error(body.detail || body.error || r.status)
+        }
+        sessionId = null
+        dataFiles = []
+        contextFiles = []
+        phase = 'idle'
+        showToast('All sessions cleared')
+      } catch (e) {
+        showToast(e.message || 'Failed to clear sessions', 'error')
+        console.error(e)
+      }
+    }
+
+    // ── UI HELPERS ────────────────────────────────────────────────────
+    function showChat() {
+      document.getElementById('welcomeScreen').classList.add('hidden')
+      document.getElementById('chatMessages').classList.remove('hidden')
+      document.getElementById('chatInputArea').classList.remove('hidden')
+    }
+
+    function addMessage(role, content) {
+      const container = document.getElementById('chatMessages')
+      const div = document.createElement('div')
+      div.className = `message ${role}`
+      const label = role === 'user' ? 'You' : 'Agent'
+      div.innerHTML = `
+        <span class="message-label">${label}</span>
+        <div class="message-bubble">${marked.parse(content)}</div>
+      `
+      container.appendChild(div)
+      container.scrollTop = container.scrollHeight
+    }
+
+    function addSystemMessage(text) {
+      const container = document.getElementById('chatMessages')
+      const div = document.createElement('div')
+      div.className = 'message system-msg'
+      div.innerHTML = `<div class="message-bubble">${text}</div>`
+      container.appendChild(div)
+      container.scrollTop = container.scrollHeight
+    }
+
+    let thinkingEl = null
+    function showThinking() {
+      const container = document.getElementById('chatMessages')
+      thinkingEl = document.createElement('div')
+      thinkingEl.className = 'message assistant'
+      thinkingEl.innerHTML = `
+        <span class="message-label">Agent</span>
+        <div class="message-bubble">
+          <div class="thinking">
+            Thinking
+            <div class="thinking-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      `
+      container.appendChild(thinkingEl)
+      container.scrollTop = container.scrollHeight
+    }
+
+    function hideThinking() {
+      if (thinkingEl) { thinkingEl.remove(); thinkingEl = null }
+    }
+
+    function enableInput(placeholder = 'Type a message...') {
+      const input = document.getElementById('chatInput')
+      const btn = document.getElementById('sendBtn')
+      input.disabled = false
+      input.placeholder = placeholder
+      btn.disabled = false
+      input.focus()
+    }
+
+    function disableInput() {
+      const input = document.getElementById('chatInput')
+      const btn = document.getElementById('sendBtn')
+      input.disabled = true
+      btn.disabled = true
+    }
+
+    function focusInput() {
+      hideSatisfactionBar()
+      enableInput('Ask a follow-up...')
+      document.getElementById('chatInput').focus()
+    }
+
+    function showSatisfactionBar() {
+      document.getElementById('satisfactionBar').classList.remove('hidden')
+    }
+
+    function hideSatisfactionBar() {
+      document.getElementById('satisfactionBar').classList.add('hidden')
+    }
+
+    function setStep(n, state) {
+      const el = document.getElementById(`step${n}`)
+      el.className = `phase-step ${state}`
+    }
+
+    function setNavStatus(text, active = false) {
+      const el = document.getElementById('navStatus')
+      el.textContent = text
+      el.className = `nav-status${active ? ' active' : ''}`
+    }
+
+    function showToast(msg, type = '') {
+      const toast = document.createElement('div')
+      toast.className = `toast${type ? ' ' + type : ''}`
+      toast.textContent = msg
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 3000)
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        sendMessage()
+      }
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto'
+      el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+    }
+
+    // Drag and drop
+    ['dataDropZone', 'contextDropZone'].forEach(id => {
+      const zone = document.getElementById(id)
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover') })
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'))
+      zone.addEventListener('drop', e => {
+        e.preventDefault()
+        zone.classList.remove('dragover')
+        const files = e.dataTransfer.files
+        if (id === 'dataDropZone') handleDataFiles(files)
+        else handleContextFiles(files)
+      })
+    })
+  </script>
+
+</body>
+</html>

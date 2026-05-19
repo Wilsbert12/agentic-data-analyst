@@ -223,5 +223,10 @@ context/*.png
 context/*.jpg
 context/*.txt
 context/*.csv
-sessions/*.json
-sessions/*.sqlite
+
+# Session data — ignore everything inside sessions/
+sessions/
+
+# Local-only docs (not for public repo)
+CLAUDE.md
+CHALLENGES.md
