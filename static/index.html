@@ -23,7 +23,7 @@
       --error:    #e05c5c;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; font-size: 28px; }
 
     body {
       background: var(--bg);
@@ -37,7 +37,7 @@
     }
 
     /* ── NAV ── */
-    nav {
+    body > nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -68,58 +68,86 @@
 
     .nav-status.active { color: var(--accent); }
 
-    /* ── MAIN LAYOUT ── */
-    .app {
+    /* ── LAYOUT ── */
+    .layout {
       display: flex;
       flex: 1;
-      height: calc(100vh - 61px);
     }
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width: 300px;
-      min-width: 300px;
+      width: 380px;
+      min-width: 380px;
       background: var(--surface);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      padding: 1.5rem;
-      gap: 1.5rem;
+      padding: 2rem 1.5rem;
+      gap: 2rem;
+      position: sticky;
+      top: 61px;
+      height: calc(100vh - 61px);
       overflow-y: auto;
     }
 
-    .sidebar-section h3 {
-      font-size: 0.72rem;
-      font-weight: 500;
+    .section-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .section-nav a {
+      display: block;
+      padding: 0.6rem 0.75rem;
+      border-radius: 4px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.15s;
+      text-align: left;
+    }
+
+    .section-nav a:hover { color: var(--text); background: var(--tag-bg); }
+    .section-nav a.active { color: var(--accent); background: var(--tag-bg); }
+
+    .sidebar-label {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.5rem;
     }
 
-    /* ── API KEY INPUT ── */
-    .api-key-input {
+    /* ── PHASE INDICATOR ── */
+    .phase-steps {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
 
-    .api-key-input input {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 0.6rem 0.8rem;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 300;
-      width: 100%;
-      outline: none;
-      transition: border-color 0.2s;
+    .phase-step {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--muted);
     }
 
-    .api-key-input input:focus { border-color: var(--accent); }
-    .api-key-input input::placeholder { color: var(--muted); }
+    .phase-step.done { color: var(--accent); }
+    .phase-step.active { color: var(--text); }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .phase-step.done .step-dot { background: var(--accent); }
+    .phase-step.active .step-dot { background: var(--text); box-shadow: 0 0 6px var(--accent); }
 
     /* ── BUTTONS ── */
     .btn {
@@ -139,11 +167,7 @@
       width: 100%;
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #0f1117;
-    }
-
+    .btn-primary { background: var(--accent); color: #0f1117; }
     .btn-primary:hover { background: #6fe0b8; }
     .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
 
@@ -164,7 +188,208 @@
 
     .btn-danger:hover { background: var(--error); color: white; }
 
-    /* ── FILE UPLOAD ── */
+    /* ── MAIN CONTENT ── */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      /* bottom padding so content isn't hidden behind fixed input bar */
+      padding-bottom: 120px;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 5rem 4rem;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .section-title em { font-style: italic; color: var(--accent); }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── ABOUT ── */
+    .about-body p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .phase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+    }
+
+    .phase-card h4 {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .phase-card.done h4 { color: var(--accent); }
+    .phase-card.current h4 { color: var(--text); }
+    .phase-card.planned h4 { color: var(--muted); }
+
+    .phase-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .notes p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .notes a { color: var(--accent); text-decoration: none; }
+    .notes a:hover { text-decoration: underline; }
+
+    /* ── HOW TO USE ── */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .step-content h4 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .step-content p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .step-content a { color: var(--accent); text-decoration: none; }
+    .step-content a:hover { text-decoration: underline; }
+
+    /* ── DEMO ── */
+    .demo-placeholder {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── TRY IT — UPLOAD FORM ── */
+    .try-it-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .form-label span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 300;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .api-key-input input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.6rem 0.8rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .api-key-input input:focus { border-color: var(--accent); }
+    .api-key-input input::placeholder { color: var(--muted); }
+
+    .api-key-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-end;
+    }
+
+    .api-key-row input { flex: 1; }
+    .api-key-row .btn { width: auto; white-space: nowrap; padding: 0.6rem 1.2rem; }
+
     .upload-zone {
       border: 1px dashed var(--border);
       border-radius: 6px;
@@ -215,62 +440,18 @@
 
     .file-item::before { content: '✓'; color: var(--accent); font-size: 0.7rem; }
 
-    /* ── PHASE INDICATOR ── */
-    .phase-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .phase-step {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .phase-step.done { color: var(--accent); }
-    .phase-step.active { color: var(--text); }
-
-    .step-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-
-    .phase-step.done .step-dot { background: var(--accent); }
-    .phase-step.active .step-dot { background: var(--text); box-shadow: 0 0 6px var(--accent); }
-
-    /* ── CHAT AREA ── */
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
+    /* ── CHAT MESSAGES (inside Try it section) ── */
     .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 2rem;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
     }
 
-    .chat-messages::-webkit-scrollbar { width: 4px; }
-    .chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    /* ── MESSAGES ── */
     .message {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      max-width: 800px;
+      max-width: 780px;
       animation: fadeUp 0.3s ease both;
     }
 
@@ -322,7 +503,7 @@
       padding: 0.3rem 0;
     }
 
-    /* Markdown styling inside bubbles */
+    /* Markdown styling */
     .message-bubble h1, .message-bubble h2, .message-bubble h3 {
       font-family: 'DM Serif Display', serif;
       color: var(--text);
@@ -375,11 +556,7 @@
       margin: 0.6rem 0;
     }
 
-    .message-bubble pre code {
-      background: none;
-      padding: 0;
-      color: var(--text);
-    }
+    .message-bubble pre code { background: none; padding: 0; color: var(--text); }
 
     .message-bubble ul, .message-bubble ol {
       padding-left: 1.2rem;
@@ -389,11 +566,49 @@
     .message-bubble li { margin-bottom: 0.2rem; }
     .message-bubble strong { color: var(--text); font-weight: 500; }
 
-    /* ── SATISFACTION PROMPT ── */
-    .satisfaction-bar {
-      padding: 0.8rem 2rem;
-      background: var(--surface);
+    /* ── THINKING INDICATOR ── */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .thinking-dots span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: dot-pulse 1.4s infinite;
+    }
+
+    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── FIXED BOTTOM BAR (satisfaction + input) ── */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      /* align with main content area, accounting for sidebar */
+      left: 380px;
+      right: 0;
+      background: var(--bg);
       border-top: 1px solid var(--border);
+      z-index: 50;
+    }
+
+    .satisfaction-bar {
+      padding: 0.7rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -403,13 +618,11 @@
 
     .satisfaction-bar .btn { width: auto; padding: 0.45rem 1rem; }
 
-    /* ── INPUT AREA ── */
     .chat-input-area {
-      padding: 1rem 2rem 1.5rem;
-      border-top: 1px solid var(--border);
+      padding: 0.8rem 2rem 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     .input-row {
@@ -464,65 +677,10 @@
       text-align: right;
     }
 
-    /* ── WELCOME SCREEN ── */
-    .welcome {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem;
-      text-align: center;
-      gap: 1rem;
-    }
-
-    .welcome h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      color: var(--text);
-      line-height: 1.2;
-    }
-
-    .welcome h2 em { font-style: italic; color: var(--accent); }
-
-    .welcome p {
-      font-size: 0.95rem;
-      color: var(--muted);
-      max-width: 420px;
-      line-height: 1.6;
-    }
-
-    /* ── LOADING INDICATOR ── */
-    .thinking {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.82rem;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    .thinking-dots span {
-      display: inline-block;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: dot-pulse 1.4s infinite;
-    }
-
-    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes dot-pulse {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-      40% { transform: scale(1); opacity: 1; }
-    }
-
     /* ── TOAST ── */
     .toast {
       position: fixed;
-      bottom: 2rem;
+      bottom: 7rem;
       right: 2rem;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -543,7 +701,6 @@
       to   { opacity: 1; transform: translateX(0); }
     }
 
-    /* ── HIDDEN ── */
     .hidden { display: none !important; }
   </style>
 </head>
@@ -555,50 +712,23 @@
     <span class="nav-status" id="navStatus">Ready to start</span>
   </nav>
 
-  <div class="app">
+  <div class="layout">
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
 
-      <!-- API Key -->
-      <div class="sidebar-section">
-        <h3>API Key</h3>
-        <div class="api-key-input">
-          <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
-          <button class="btn btn-primary" id="startSessionBtn" onclick="startSession()">Start Session</button>
-        </div>
+      <div>
+        <div class="sidebar-label">Navigation</div>
+        <nav class="section-nav">
+          <a href="#about">About</a>
+          <a href="#how-to-use">How to Use</a>
+          <a href="#demo">Demo</a>
+          <a href="#try-it">Try it</a>
+        </nav>
       </div>
 
-      <!-- Data Upload -->
-      <div class="sidebar-section" id="uploadSection">
-        <h3>Dataset</h3>
-        <div class="upload-zone" id="dataDropZone">
-          <input type="file" id="dataFiles" multiple accept=".csv" onchange="handleDataFiles(this.files)" />
-          <p><span>Upload CSV files</span><br/>Drag & drop or click</p>
-        </div>
-        <div class="file-list" id="dataFileList"></div>
-      </div>
-
-      <!-- Context Upload -->
-      <div class="sidebar-section" id="contextSection">
-        <h3>Context <span style="color:var(--muted);font-size:0.7rem;font-weight:300">(optional)</span></h3>
-        <div class="upload-zone" id="contextDropZone">
-          <input type="file" id="contextFiles" multiple accept=".txt,.csv,.png,.jpg,.jpeg" onchange="handleContextFiles(this.files)" />
-          <p><span>Data cards, schema images</span><br/>.txt .csv .png .jpg</p>
-        </div>
-        <div class="file-list" id="contextFileList"></div>
-      </div>
-
-      <!-- Start Analysis Button -->
-      <div class="sidebar-section" id="startSection">
-        <button class="btn btn-primary" id="startAnalysisBtn" onclick="startSetup()" disabled>
-          Analyse Dataset
-        </button>
-      </div>
-
-      <!-- Phase Progress -->
-      <div class="sidebar-section" id="phaseSection">
-        <h3>Progress</h3>
+      <div id="progressSection" class="hidden">
+        <div class="sidebar-label">Progress</div>
         <div class="phase-steps">
           <div class="phase-step" id="step1"><div class="step-dot"></div>Session started</div>
           <div class="phase-step" id="step2"><div class="step-dot"></div>Data loaded</div>
@@ -607,62 +737,197 @@
         </div>
       </div>
 
-      <!-- Clear Memory -->
-      <div class="sidebar-section" id="clearSection" class="hidden">
-        <button class="btn btn-danger" id="clearMemoryBtn" onclick="clearMemory()">
-          Clear Memory
-        </button>
+      <div style="margin-top: auto;">
+        <button class="btn btn-danger" id="clearMemoryBtn" onclick="clearMemory()">Clear Memory</button>
       </div>
 
     </aside>
 
-    <!-- CHAT -->
-    <div class="chat-container">
+    <!-- MAIN CONTENT -->
+    <main id="mainContent">
 
-      <!-- Welcome screen -->
-      <div class="welcome" id="welcomeScreen">
-        <h2>Turn data into<br/><em>business decisions</em></h2>
-        <p>Enter your Anthropic API key, upload your dataset, and start asking questions in plain English.</p>
-      </div>
+      <!-- ABOUT -->
+      <section class="section" id="about">
+        <h1 class="section-title">About this <em>Agentic Data Analyst</em></h1>
+        <p class="section-subtitle">Analyse structured data in natural language — no SQL required.</p>
+        <div class="about-body">
+          <p>Upload one or more CSV files and ask business questions in plain English. The agent translates your question into SQL, executes it against your dataset, and returns a clear, grounded answer — with no guessing and no hallucination.</p>
+          <p>Built on a LangGraph agent with a two-tier memory architecture: past analyses are stored in a Chroma vector database and retrieved via RAG (Retrieval-Augmented Generation), so context from previous questions informs new ones without passing the full history every time.</p>
 
-      <!-- Messages -->
-      <div class="chat-messages hidden" id="chatMessages"></div>
+          <div class="phases-grid">
+            <div class="phase-card done">
+              <h4>Phase 1 — Complete ✓</h4>
+              <p>Core analytical loop: schema confirmation, NL → SQL, two-tier RAG memory, FastAPI backend, HTML/JS frontend.</p>
+            </div>
+            <div class="phase-card current">
+              <h4>Phase 2 — In Progress</h4>
+              <p>Docker, AWS ECS deployment, GitHub Actions CI/CD, architecture diagram, portfolio publish.</p>
+            </div>
+            <div class="phase-card planned">
+              <h4>Phase 3 — Planned</h4>
+              <p>Kaggle API integration, LangSmith tracing, session persistence, user authentication.</p>
+            </div>
+            <div class="phase-card planned">
+              <h4>Phase 4 — Stretch</h4>
+              <p>Ollama integration (local open-source models), NL → pandas transformation layer, demo GIF.</p>
+            </div>
+          </div>
 
-      <!-- Satisfaction bar -->
-      <div class="satisfaction-bar hidden" id="satisfactionBar">
-        <span>Does this answer your question?</span>
-        <button class="btn btn-primary" onclick="confirmSatisfied()">Yes, continue</button>
-        <button class="btn btn-ghost" onclick="focusInput()">Follow up</button>
-      </div>
-
-      <!-- Input -->
-      <div class="chat-input-area hidden" id="chatInputArea">
-        <div class="input-row">
-          <textarea
-            class="chat-input"
-            id="chatInput"
-            placeholder="Ask a business question..."
-            rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"
-            disabled
-          ></textarea>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
+          <div class="notes">
+            <p style="font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem;">Important Notes</p>
+            <p><strong style="color: var(--text);">API key required.</strong> This tool uses the Anthropic Claude API. You need to bring your own key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Your key is transmitted to the server only to make API calls and is wiped from memory at the end of your session — it is never logged or stored to disk.</p>
+            <p><strong style="color: var(--text);">Prefer to run locally?</strong> Clone the repo at <a href="https://github.com/Wilsbert12/agentic-data-analyst" target="_blank">github.com/Wilsbert12/agentic-data-analyst</a> and follow the setup instructions in the README.</p>
+          </div>
         </div>
-        <p class="input-hint">Press Enter to send · Shift+Enter for new line</p>
-      </div>
+      </section>
 
+      <!-- HOW TO USE -->
+      <section class="section" id="how-to-use">
+        <h2 class="section-title">How to <em>Use</em></h2>
+        <p class="section-subtitle">Six steps from dataset to insight.</p>
+        <div class="steps-list">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Get an Anthropic API key</h4>
+              <p>Sign up at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> and create an API key. This is separate from a Claude.ai subscription. Usage is billed per token — a typical analysis session costs a few cents.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Upload your dataset</h4>
+              <p>Upload one or more CSV files. Each file becomes a table in a SQLite database. Multi-table datasets with foreign keys are fully supported — the agent can write JOIN queries across tables.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Upload context files (optional)</h4>
+              <p>Optionally upload a data card, data dictionary, or schema diagram (PNG/JPG). These are sent to Claude during setup to improve schema understanding — useful for complex datasets with non-obvious column names or relationships.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>Confirm the schema</h4>
+              <p>Claude reviews the schema, sample rows, and profiling statistics, then asks clarifying questions about ambiguities — duplicate keys, multiple rows per entity, missing translations. Answer concretely: specific handling rules produce better SQL than vague answers.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h4>Ask business questions</h4>
+              <p>Ask questions in plain English. The agent clarifies before assuming — if your question is ambiguous, it will ask for thresholds or definitions before running any query. All answers are grounded in actual query results.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h4>Confirm and continue</h4>
+              <p>When you're satisfied with an answer, confirm it. The analysis is summarised and stored in memory — future questions can reference past findings automatically via similarity search.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEMO -->
+      <section class="section" id="demo">
+        <h2 class="section-title"><em>Demo</em></h2>
+        <p class="section-subtitle">See the agent in action.</p>
+        <div class="demo-placeholder">
+          <p>Screenshots coming soon.</p>
+        </div>
+      </section>
+
+      <!-- TRY IT -->
+      <section class="section" id="try-it">
+        <h2 class="section-title">Try <em>it</em></h2>
+        <p class="section-subtitle">Upload your dataset and start asking questions.</p>
+
+        <!-- Setup form -->
+        <div class="try-it-form" id="setupForm">
+
+          <!-- API Key -->
+          <div class="form-group">
+            <div class="form-label">API Key</div>
+            <div class="api-key-input">
+              <div class="api-key-row">
+                <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+                <button class="btn btn-primary" id="startSessionBtn" onclick="startSession()" style="width:auto">Start Session</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dataset upload -->
+          <div class="form-group" id="uploadSection">
+            <div class="form-label">Dataset</div>
+            <div class="upload-zone" id="dataDropZone">
+              <input type="file" id="dataFiles" multiple accept=".csv" onchange="handleDataFiles(this.files)" />
+              <p><span>Upload CSV files</span><br/>Drag & drop or click</p>
+            </div>
+            <div class="file-list" id="dataFileList"></div>
+          </div>
+
+          <!-- Context upload -->
+          <div class="form-group" id="contextSection">
+            <div class="form-label">Context <span>(optional — data cards, schema images)</span></div>
+            <div class="upload-zone" id="contextDropZone">
+              <input type="file" id="contextFiles" multiple accept=".txt,.csv,.png,.jpg,.jpeg" onchange="handleContextFiles(this.files)" />
+              <p><span>Data cards, schema images</span><br/>.txt .csv .png .jpg</p>
+            </div>
+            <div class="file-list" id="contextFileList"></div>
+          </div>
+
+          <!-- Start button -->
+          <div class="form-group" id="startSection">
+            <button class="btn btn-primary" id="startAnalysisBtn" onclick="startSetup()" disabled>
+              Analyse Dataset
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Chat messages (grow below the form as conversation progresses) -->
+        <div class="chat-messages" id="chatMessages"></div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- FIXED BOTTOM BAR -->
+  <div class="bottom-bar hidden" id="bottomBar">
+    <div class="satisfaction-bar hidden" id="satisfactionBar">
+      <span>Does this answer your question?</span>
+      <button class="btn btn-primary" onclick="confirmSatisfied()">Yes, continue</button>
+      <button class="btn btn-ghost" onclick="focusInput()">Follow up</button>
+    </div>
+    <div class="chat-input-area hidden" id="chatInputArea">
+      <div class="input-row">
+        <textarea
+          class="chat-input"
+          id="chatInput"
+          placeholder="Ask a business question..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+          disabled
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">Press Enter to send · Shift+Enter for new line</p>
     </div>
   </div>
 
   <script>
-    const API = 'http://localhost:8000'
+    const API = window.location.origin
     let sessionId = null
-    let phase = 'idle' // idle | setup | analysis
+    let phase = 'idle'
     let analysisComplete = false
     let dataFiles = []
     let contextFiles = []
@@ -682,6 +947,7 @@
         sessionId = data.session_id
         document.getElementById('startSessionBtn').disabled = true
         document.getElementById('apiKeyInput').disabled = true
+        document.getElementById('progressSection').classList.remove('hidden')
         setStep(1, 'done')
         setNavStatus('Session active', true)
         showToast('Session started')
@@ -716,7 +982,7 @@
     async function startSetup() {
       if (!sessionId || dataFiles.length === 0) return
 
-      showChat()
+      showChatInput()
       setNavStatus('Loading data...', true)
       addSystemMessage('Loading your dataset...')
 
@@ -730,14 +996,12 @@
           return r
         }
 
-        // Upload data files
         const dataForm = new FormData()
         dataForm.append('session_id', sessionId)
         dataFiles.forEach(f => dataForm.append('files', f))
         await checkedFetch(`${API}/load-data`, {method: 'POST', body: dataForm})
         setStep(2, 'done')
 
-        // Upload context files if any
         if (contextFiles.length > 0) {
           const ctxForm = new FormData()
           ctxForm.append('session_id', sessionId)
@@ -745,7 +1009,6 @@
           await checkedFetch(`${API}/load-context`, {method: 'POST', body: ctxForm})
         }
 
-        // Build setup messages
         await checkedFetch(`${API}/build-setup-messages`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -756,7 +1019,6 @@
         setNavStatus('Analysing schema...', true)
         showThinking()
 
-        // Initial prompt
         const initRes = await checkedFetch(`${API}/initial-prompt`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -958,10 +1220,11 @@
     }
 
     // ── UI HELPERS ────────────────────────────────────────────────────
-    function showChat() {
-      document.getElementById('welcomeScreen').classList.add('hidden')
-      document.getElementById('chatMessages').classList.remove('hidden')
+    function showChatInput() {
+      document.getElementById('bottomBar').classList.remove('hidden')
       document.getElementById('chatInputArea').classList.remove('hidden')
+      // Scroll to try-it section
+      document.getElementById('try-it').scrollIntoView({behavior: 'smooth'})
     }
 
     function addMessage(role, content) {
@@ -974,7 +1237,7 @@
         <div class="message-bubble">${marked.parse(content)}</div>
       `
       container.appendChild(div)
-      container.scrollTop = container.scrollHeight
+      div.scrollIntoView({behavior: 'smooth', block: 'end'})
     }
 
     function addSystemMessage(text) {
@@ -983,7 +1246,6 @@
       div.className = 'message system-msg'
       div.innerHTML = `<div class="message-bubble">${text}</div>`
       container.appendChild(div)
-      container.scrollTop = container.scrollHeight
     }
 
     let thinkingEl = null
@@ -996,14 +1258,12 @@
         <div class="message-bubble">
           <div class="thinking">
             Thinking
-            <div class="thinking-dots">
-              <span></span><span></span><span></span>
-            </div>
+            <div class="thinking-dots"><span></span><span></span><span></span></div>
           </div>
         </div>
       `
       container.appendChild(thinkingEl)
-      container.scrollTop = container.scrollHeight
+      thinkingEl.scrollIntoView({behavior: 'smooth', block: 'end'})
     }
 
     function hideThinking() {
@@ -1082,6 +1342,22 @@
         const files = e.dataTransfer.files
         if (id === 'dataDropZone') handleDataFiles(files)
         else handleContextFiles(files)
+      })
+    })
+
+    // Highlight active sidebar section on scroll
+    const sections = ['about', 'how-to-use', 'demo', 'try-it']
+    const navLinks = document.querySelectorAll('.section-nav a')
+    const mainEl = document.getElementById('mainContent')
+
+    mainEl.addEventListener('scroll', () => {
+      let current = sections[0]
+      sections.forEach(id => {
+        const el = document.getElementById(id)
+        if (el && mainEl.scrollTop >= el.offsetTop - 100) current = id
+      })
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === `#${current}`)
       })
     })
   </script>
