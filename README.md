@@ -89,6 +89,12 @@ pandas is used for the profiling step (shape, dtypes, NaN rates, unique counts) 
 
 **Scale note:** pandas loads data into memory — this works well for typical analytical datasets but will hit limits on very large files (multi-GB range). In a production environment with datasets of that size, a server-based database would be more appropriate.
 
+**Serverless hosting via AWS App Runner.**
+The app is hosted on AWS App Runner, which scales to zero when idle. This means there is no compute cost between sessions, making it suitable for portfolio use on the free tier. The tradeoff is a cold start delay of a few seconds on the first request after a period of inactivity — acceptable for this use case.
+
+**Automated kill switch for cost protection.**
+An AWS Budget threshold triggers an SNS topic, which invokes a Lambda function that pauses the App Runner service. This acts as a hard spending cap — if costs spike due to unexpected traffic or abuse, the service is automatically stopped rather than allowing unbounded charges to accumulate.
+
 ---
 
 ## Tech Stack
@@ -103,7 +109,7 @@ pandas is used for the profiling step (shape, dtypes, NaN rates, unique counts) 
 | Tracing | LangSmith | Native LangChain tracing and evaluation |
 | Memory | Chroma | Conversational memory via RAG |
 | Containerisation | Docker | Frontend + backend as separate containers |
-| Cloud | AWS (ECR + ECS) | ECR for images, ECS for container orchestration |
+| Cloud | AWS (ECR + App Runner) | ECR for images, App Runner for serverless container hosting |
 | CI/CD | GitHub Actions | Auto-deploy on push to main |
 
 ---
@@ -183,9 +189,9 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 
 **Phase 2 — AWS deployment + CI/CD**
 - [ ] UI/UX update — nav bar, about section, static content
-- [ ] Dockerfile + ECR + ECS
-- [ ] GitHub Actions CI/CD pipeline
-- [ ] AWS deployment + billing alarms and budget limits
+- [x] Dockerfile + ECR + App Runner
+- [x] GitHub Actions CI/CD pipeline — auto-deploy on push to main (app files only)
+- [x] AWS deployment + billing alarms and budget limits — email alert + automated kill switch (SNS → Lambda → App Runner pause) on budget threshold
 - [ ] Architecture diagram
 - [ ] Publish to portfolio (architecture diagram, screenshots)
 

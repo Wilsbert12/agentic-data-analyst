@@ -1,0 +1,40 @@
+name: Deploy to App Runner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api.py'
+      - 'utils.py'
+      - 'static/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image to ECR
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/agentic-data-analyst:latest .
+          docker push ${{ steps.login-ecr.outputs.registry }}/agentic-data-analyst:latest
+
+      - name: Deploy to App Runner
+        run: |
+          aws apprunner start-deployment \
+            --service-arn arn:aws:apprunner:eu-west-1:820815709511:service/agentic-data-analyst/5235a125437c4663a4796972ca212960

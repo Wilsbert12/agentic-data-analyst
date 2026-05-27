@@ -60,7 +60,7 @@
     .nav-brand span { color: var(--accent); }
 
     .nav-status {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       color: var(--muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -131,7 +131,7 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--muted);
     }
 
@@ -157,7 +157,7 @@
       gap: 0.4rem;
       padding: 0.6rem 1.2rem;
       border-radius: 4px;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 500;
       font-family: 'DM Sans', sans-serif;
       cursor: pointer;
@@ -222,15 +222,16 @@
     /* ── ABOUT ── */
     .about-body p {
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 1rem;
       margin-bottom: 1rem;
     }
 
     .phases-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 1rem;
-      margin: 2rem 0;
+      margin: 2rem auto;
+      max-width: 900px;
     }
 
     .phase-card {
@@ -241,10 +242,8 @@
     }
 
     .phase-card h4 {
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
       color: var(--accent);
       margin-bottom: 0.5rem;
     }
@@ -252,6 +251,14 @@
     .phase-card.done h4 { color: var(--accent); }
     .phase-card.current h4 { color: var(--text); }
     .phase-card.planned h4 { color: var(--muted); }
+    .phase-card.done ul, .phase-card.current ul { color: var(--text); }
+
+    .phase-card ul {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding-left: 1.1rem;
+      line-height: 1.9;
+    }
 
     .phase-card p {
       font-size: 0.85rem;
@@ -299,7 +306,7 @@
       background: var(--tag-bg);
       border: 1px solid var(--border);
       color: var(--accent);
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 500;
       display: flex;
       align-items: center;
@@ -309,7 +316,7 @@
     }
 
     .step-content h4 {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 500;
       color: var(--text);
       margin-bottom: 0.25rem;
@@ -349,7 +356,7 @@
     }
 
     .form-label {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -358,7 +365,7 @@
 
     .form-label span {
       color: var(--muted);
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       font-weight: 300;
       text-transform: none;
       letter-spacing: 0;
@@ -413,7 +420,7 @@
     }
 
     .upload-zone p {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--muted);
       pointer-events: none;
     }
@@ -428,7 +435,7 @@
     }
 
     .file-item {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       color: var(--muted);
       padding: 0.25rem 0.5rem;
       background: var(--tag-bg);
@@ -438,7 +445,7 @@
       gap: 0.4rem;
     }
 
-    .file-item::before { content: '✓'; color: var(--accent); font-size: 0.7rem; }
+    .file-item::before { content: '✓'; color: var(--accent); font-size: 0.85rem; }
 
     /* ── CHAT MESSAGES (inside Try it section) ── */
     .chat-messages {
@@ -465,7 +472,7 @@
     .message.system-msg { align-self: center; }
 
     .message-label {
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -477,7 +484,7 @@
     .message-bubble {
       padding: 1rem 1.2rem;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       line-height: 1.7;
     }
 
@@ -639,7 +646,7 @@
       padding: 0.75rem 1rem;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 300;
       resize: none;
       outline: none;
@@ -672,7 +679,7 @@
     .send-btn svg { width: 18px; height: 18px; color: #0f1117; }
 
     .input-hint {
-      font-size: 0.72rem;
+      font-size: 0.85rem;
       color: var(--muted);
       text-align: right;
     }
@@ -751,25 +758,41 @@
         <h1 class="section-title">About this <em>Agentic Data Analyst</em></h1>
         <p class="section-subtitle">Analyse structured data in natural language — no SQL required.</p>
         <div class="about-body">
-          <p>Upload one or more CSV files and ask business questions in plain English. The agent translates your question into SQL, executes it against your dataset, and returns a clear, grounded answer — with no guessing and no hallucination.</p>
-          <p>Built on a LangGraph agent with a two-tier memory architecture: past analyses are stored in a Chroma vector database and retrieved via RAG (Retrieval-Augmented Generation), so context from previous questions informs new ones without passing the full history every time.</p>
+          <p>This is an agentic data analyst — a tool that lets you explore and analyse structured datasets through a natural language conversation, without writing a single line of SQL. It is being built in four phases, as outlined below. The current version runs on Claude Sonnet, Anthropic's state-of-the-art language model. Support for local open-source models is planned for a later phase.</p>
+          <p>Upload one or more CSV files and ask business questions in plain English. The agent translates your question into SQL, executes it against your dataset, and returns a clear, grounded answer — all results are backed by actual query execution, not model inference.</p>
+          <p>Across multiple analyses, the tool builds up a memory of past findings. Built on a LangGraph agent with a two-tier architecture, past analyses are stored in a Chroma vector database and retrieved via RAG (Retrieval-Augmented Generation), so relevant context is injected into each new question without passing the full conversation history on every API call.</p>
 
           <div class="phases-grid">
             <div class="phase-card done">
-              <h4>Phase 1 — Complete ✓</h4>
-              <p>Core analytical loop: schema confirmation, NL → SQL, two-tier RAG memory, FastAPI backend, HTML/JS frontend.</p>
+              <h4>Phase 1 — Live ✓</h4>
+              <ul>
+                <li>Claude API Integration</li>
+                <li>Schema Confirmation & NL→SQL Analysis Loop</li>
+                <li>RAG Memory: vector store for cross-analysis context</li>
+              </ul>
+            </div>
+            <div class="phase-card done">
+              <h4>Phase 2 — Live ✓</h4>
+              <ul>
+                <li>AWS Cloud Deployment</li>
+                <li>Docker Containerisation</li>
+                <li>CI/CD Pipeline</li>
+              </ul>
             </div>
             <div class="phase-card current">
-              <h4>Phase 2 — In Progress</h4>
-              <p>Docker, AWS ECS deployment, GitHub Actions CI/CD, architecture diagram, portfolio publish.</p>
+              <h4>Phase 3 — In Progress</h4>
+              <ul>
+                <li>Kaggle Integration: load datasets directly by URL</li>
+                <li>User Accounts & persistent session storage</li>
+                <li>Monitoring & Observability: LangSmith tracing</li>
+              </ul>
             </div>
             <div class="phase-card planned">
-              <h4>Phase 3 — Planned</h4>
-              <p>Kaggle API integration, LangSmith tracing, session persistence, user authentication.</p>
-            </div>
-            <div class="phase-card planned">
-              <h4>Phase 4 — Stretch</h4>
-              <p>Ollama integration (local open-source models), NL → pandas transformation layer, demo GIF.</p>
+              <h4>Phase 4 — Planned</h4>
+              <ul>
+                <li>Local Model Support: run without an API key via Ollama</li>
+                <li>Data Transformation: natural language to pandas operations</li>
+              </ul>
             </div>
           </div>
 
@@ -835,9 +858,44 @@
       <section class="section" id="demo">
         <h2 class="section-title"><em>Demo</em></h2>
         <p class="section-subtitle">See the agent in action.</p>
-        <div class="demo-placeholder">
-          <p>Screenshots coming soon.</p>
-        </div>
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin-bottom: 0.75rem;">1. Setup</h3>
+        <ol style="color: var(--muted); font-size: 0.85rem; padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 2;">
+          <li>Navigate to the <em>Try it</em> section</li>
+          <li>Clear memory from earlier runs (optional)</li>
+          <li>Enter your Claude API key</li>
+          <li>Press <strong style="color: var(--text);">Start Session</strong></li>
+          <li>Upload your dataset (CSV files)</li>
+          <li>Upload additional context files — data cards, schema images (optional)</li>
+          <li>Press <strong style="color: var(--text);">Analyse Dataset</strong></li>
+        </ol>
+        <img src="/images/setup_agent.png" alt="Setup walkthrough" style="width: 70%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">2. Schema Confirmation</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">The agent analyses your dataset and produces a summary of the tables, relationships, and key fields — then asks clarifying questions before any analysis begins.</p>
+        <img src="/images/dataset_summary.png" alt="Dataset summary and schema confirmation" style="width: 50%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">3. Clarifying Questions</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Before confirming the schema, the agent flags ambiguities — duplicate keys, multiple rows per entity, missing values — and asks how to handle them. Your answers become the confirmed rules for all subsequent queries.</p>
+        <img src="/images/ambiguities_and_questions.png" alt="Ambiguities and clarifying questions" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">4. Schema Confirmed</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once all ambiguities are resolved, the agent confirms the schema and the confirmed rules are saved — ready to inform every subsequent analysis.</p>
+        <img src="/images/schema_confirmed.png" alt="Schema confirmed" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">5. Ask a Business Question</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Start a conversation about a business question you'd like to analyse. If the question is ambiguous, the agent will ask for clarification before running any queries.</p>
+        <img src="/images/business_question.png" alt="Business question and clarifying questions" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">6. Receive a Result</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once all questions are clarified, the agent runs the necessary queries and returns a grounded result — backed by actual data, not model inference.</p>
+        <img src="/images/analysis_complete.png" alt="Analysis complete" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">7. Refine or Move On</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once you have a result, decide whether to refine it with a follow-up question or accept it as final and move on to your next business question.</p>
+        <img src="/images/analysis_complete_or_fup.png" alt="Follow up or continue" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
+
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">8. Loop</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Depending on your choice, you either loop back to a new business question or keep refining the current one until you are satisfied. Confirmed analyses are saved to memory and inform future questions automatically.</p>
       </section>
 
       <!-- TRY IT -->
