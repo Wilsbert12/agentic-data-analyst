@@ -176,7 +176,7 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 - [x] Dockerfile + ECR + App Runner
 - [x] GitHub Actions CI/CD pipeline — auto-deploy on push to main (app files only)
 - [x] AWS deployment + billing alarms and budget limits — email alert + automated kill switch (SNS → Lambda → App Runner pause) on budget threshold
-- [ ] Architecture diagram — full stack: browser → App Runner → FastAPI → LangGraph agent → SQLite + Chroma + Claude API, plus CI/CD flow
+- [x] Architecture diagram — embedded in README and website
 - [ ] Publish to portfolio
 
 **Phase 3 — Feature development**
