@@ -539,3 +539,4 @@ def analysis_summary(request: SessionAction):
 # matched by the API routes above.
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
+
