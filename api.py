@@ -540,3 +540,4 @@ def analysis_summary(request: SessionAction):
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
+
