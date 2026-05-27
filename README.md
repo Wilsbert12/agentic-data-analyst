@@ -8,25 +8,29 @@ Built as a production-grade agentic application using LangChain, FastAPI, and th
 
 ## Architecture
 
-```
-User (browser)
-    ↓
-HTML/JS Frontend (chat interface)
-    ↓
-FastAPI Backend (agent logic)
-    ↓
-LangChain Agent
-    ├── Schema extraction + column samples
-    ├── NL → SQL → SQLite query
-    ├── LLM interpretation + recommendation
-    └── Conversational memory (Chroma vector store — RAG)
-    ↓
-Claude API (LLM)
+```mermaid
+flowchart TD
+    subgraph CICD[CI/CD]
+        GH[GitHub] -->|push to main| GA[GitHub Actions]
+        GA -->|docker build + push| ECR[AWS ECR]
+    end
+    ECR -->|deploy| AR
 
-LangSmith (tracing every agent step)
-Docker (frontend + backend containers)
-AWS ECR → ECS (cloud deployment)
-GitHub Actions (CI/CD — auto-deploy on push)
+    Browser -->|1. request| FA
+    FA -->|11. response| Browser
+
+    subgraph AR[AWS App Runner]
+        FA[FastAPI]
+        FA -->|2. RAG retrieval| CH[(Chroma\nRAG Store)]
+        CH -->|3. context| FA
+        FA -->|4. invoke with RAG context| AG[LangGraph Agent]
+        AG -->|5. reasoning| CL[Anthropic API\nClaude Sonnet]
+        CL -->|6. response| AG
+        AG -->|7. run_sql| DB[(SQLite\nper-session)]
+        DB -->|8. query result| AG
+        AG -->|9. analysis complete| FA
+        FA -->|10. store summary| CH
+    end
 ```
 
 **Key principle:** The LLM never touches raw data. It sees schema and column samples only. Computation runs on the actual data outside the model and results are passed back for interpretation.
@@ -188,12 +192,13 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 - [x] Error handling — structured JSON errors, frontend toasts, automatic 429 retry with prompt caching
 
 **Phase 2 — AWS deployment + CI/CD**
-- [ ] UI/UX update — nav bar, about section, static content
+- [x] UI/UX update — nav bar, about section, screenshots
+  - [ ] Demo recording (replace static screenshots)
 - [x] Dockerfile + ECR + App Runner
 - [x] GitHub Actions CI/CD pipeline — auto-deploy on push to main (app files only)
 - [x] AWS deployment + billing alarms and budget limits — email alert + automated kill switch (SNS → Lambda → App Runner pause) on budget threshold
-- [ ] Architecture diagram
-- [ ] Publish to portfolio (architecture diagram, screenshots)
+- [ ] Architecture diagram — full stack: browser → App Runner → FastAPI → LangGraph agent → SQLite + Chroma + Claude API, plus CI/CD flow
+- [ ] Publish to portfolio
 
 **Phase 3 — Feature development**
 - [ ] Kaggle API integration — pull datasets directly by URL
