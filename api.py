@@ -538,3 +538,4 @@ def analysis_summary(request: SessionAction):
 # Static files must be mounted last — it acts as a catch-all for any path not
 # matched by the API routes above.
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
