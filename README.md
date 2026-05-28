@@ -6,6 +6,12 @@ Built as a production-grade agentic application using LangChain, FastAPI, and th
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/7eb5faed-68f5-4a9b-ac05-7cf7c1aae539
+
+---
+
 ## Architecture
 
 ![Architecture](static/images/agent_architecture.png)
@@ -172,7 +178,7 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 
 **Phase 2 — AWS deployment + CI/CD**
 - [x] UI/UX update — nav bar, about section, screenshots
-  - [ ] Demo recording (replace static screenshots)
+  - [x] Demo recording (replace static screenshots)
 - [x] Dockerfile + ECR + App Runner
 - [x] GitHub Actions CI/CD pipeline — auto-deploy on push to main (app files only)
 - [x] AWS deployment + billing alarms and budget limits — email alert + automated kill switch (SNS → Lambda → App Runner pause) on budget threshold

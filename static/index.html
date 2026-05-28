@@ -876,32 +876,21 @@
         </ol>
         <img src="/images/setup_agent.png" alt="Setup walkthrough" style="width: 70%; border-radius: 8px; border: 1px solid var(--border);" />
 
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">2. Schema Confirmation</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">The agent analyses your dataset and produces a summary of the tables, relationships, and key fields — then asks clarifying questions before any analysis begins.</p>
-        <img src="/images/dataset_summary.png" alt="Dataset summary and schema confirmation" style="width: 50%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">3. Clarifying Questions</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Before confirming the schema, the agent flags ambiguities — duplicate keys, multiple rows per entity, missing values — and asks how to handle them. Your answers become the confirmed rules for all subsequent queries.</p>
-        <img src="/images/ambiguities_and_questions.png" alt="Ambiguities and clarifying questions" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">4. Schema Confirmed</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once all ambiguities are resolved, the agent confirms the schema and the confirmed rules are saved — ready to inform every subsequent analysis.</p>
-        <img src="/images/schema_confirmed.png" alt="Schema confirmed" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">5. Ask a Business Question</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Start a conversation about a business question you'd like to analyse. If the question is ambiguous, the agent will ask for clarification before running any queries.</p>
-        <img src="/images/business_question.png" alt="Business question and clarifying questions" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">6. Receive a Result</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once all questions are clarified, the agent runs the necessary queries and returns a grounded result — backed by actual data, not model inference.</p>
-        <img src="/images/analysis_complete.png" alt="Analysis complete" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">7. Refine or Move On</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Once you have a result, decide whether to refine it with a follow-up question or accept it as final and move on to your next business question.</p>
-        <img src="/images/analysis_complete_or_fup.png" alt="Follow up or continue" style="width: 40%; border-radius: 8px; border: 1px solid var(--border);" />
-
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">8. Loop</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Depending on your choice, you either loop back to a new business question or keep refining the current one until you are satisfied. Confirmed analyses are saved to memory and inform future questions automatically.</p>
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">2. Full Walkthrough</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem;">The following is a recording of a complete interaction with the agentic data analyst:</p>
+        <ol style="color: var(--muted); font-size: 0.85rem; padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 2;">
+          <li><strong style="color: var(--text);">Setup</strong> — the API key and files are uploaded as described in step 1</li>
+          <li><strong style="color: var(--text);">Schema confirmation</strong> — the agent analyses the uploaded dataset and summarises tables, column types, and key relationships</li>
+          <li><strong style="color: var(--text);">Clarifying questions</strong> — ambiguities are flagged and resolved before any analysis begins</li>
+          <li><strong style="color: var(--text);">Schema confirmed</strong> — confirmed rules are saved and inform every subsequent query</li>
+          <li><strong style="color: var(--text);">Business question</strong> — a natural language question is submitted; the agent asks a clarifying question before moving to the analysis</li>
+          <li><strong style="color: var(--text);">Result</strong> — the agent runs SQL against the database and returns a grounded answer</li>
+          <li><strong style="color: var(--text);">Refine or move on</strong> — the user is not satisfied with the first result and asks a follow-up question to refine it; after the second analysis, the user confirms the result and moves to the next question</li>
+          <li><strong style="color: var(--text);">Memory</strong> — confirmed analyses are summarised and stored; past context is retrieved automatically for future questions</li>
+        </ol>
+        <video controls style="width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+          <source src="https://github.com/user-attachments/assets/7eb5faed-68f5-4a9b-ac05-7cf7c1aae539" type="video/mp4">
+        </video>
       </section>
 
       <!-- TRY IT -->
