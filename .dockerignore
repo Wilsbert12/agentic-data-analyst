@@ -1,6 +1,9 @@
-venv/
-sessions/
-.env
-__pycache__/
-*.pyc
-.git/
+# Exclude everything by default
+*
+
+# Include only what the app needs to run
+!api.py
+!utils.py
+!requirements.txt
+!static/
+!static/**
