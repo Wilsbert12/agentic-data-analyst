@@ -195,3 +195,4 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 **Phase 4 — Stretch**
 - [ ] NL → pandas transformation layer
 - [ ] Demo GIF
+- [ ] Migrate from App Runner to ECS Express Mode — App Runner is no longer accepting new customers (April 2026); AWS recommends ECS Express Mode as the replacement. Existing App Runner deployments continue to work and receive security patches, but no new features will be added.
