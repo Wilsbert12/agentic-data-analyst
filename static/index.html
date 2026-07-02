@@ -783,9 +783,9 @@
             <div class="phase-card current">
               <h4>Phase 3 — In Progress</h4>
               <ul>
+                <li>Monitoring & Observability: LangSmith tracing ✓</li>
                 <li>Kaggle Integration: load datasets directly by URL</li>
                 <li>User Accounts & persistent session storage</li>
-                <li>Monitoring & Observability: LangSmith tracing</li>
               </ul>
             </div>
             <div class="phase-card planned">
@@ -798,7 +798,7 @@
           </div>
 
           <div style="margin-top: 3rem; text-align: center;">
-            <img src="/images/agent_architecture.png" alt="Architecture diagram" style="width: 100%; max-width: 2400px; border-radius: 8px;" />
+            <img src="/images/agent_architecture.png" alt="Architecture diagram" style="width: 100vw; position: relative; left: 50%; transform: translateX(-50%); max-width: none; border-radius: 8px;" />
             <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--muted);">Simplified — actual flow includes conditional branches and conversational loops. See README for details.</p>
           </div>
 
@@ -877,7 +877,10 @@
         <img src="/images/setup_agent.png" alt="Setup walkthrough" style="width: 70%; border-radius: 8px; border: 1px solid var(--border);" />
 
         <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--text); margin: 2.5rem 0 0.75rem;">2. Full Walkthrough</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem;">The following is a recording of a complete interaction with the agentic data analyst:</p>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem;">Click on the video to see a complete interaction with the agentic data analyst.</p>
+        <video controls style="width: 100%; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+          <source src="https://github.com/user-attachments/assets/7eb5faed-68f5-4a9b-ac05-7cf7c1aae539" type="video/mp4">
+        </video>
         <ol style="color: var(--muted); font-size: 0.85rem; padding-left: 1.2rem; margin-bottom: 1.5rem; line-height: 2;">
           <li><strong style="color: var(--text);">Setup</strong> — the API key and files are uploaded as described in step 1</li>
           <li><strong style="color: var(--text);">Schema confirmation</strong> — the agent analyses the uploaded dataset and summarises tables, column types, and key relationships</li>
@@ -888,9 +891,6 @@
           <li><strong style="color: var(--text);">Refine or move on</strong> — the user is not satisfied with the first result and asks a follow-up question to refine it; after the second analysis, the user confirms the result and moves to the next question</li>
           <li><strong style="color: var(--text);">Memory</strong> — confirmed analyses are summarised and stored; past context is retrieved automatically for future questions</li>
         </ol>
-        <video controls style="width: 100%; border-radius: 8px; border: 1px solid var(--border);">
-          <source src="https://github.com/user-attachments/assets/7eb5faed-68f5-4a9b-ac05-7cf7c1aae539" type="video/mp4">
-        </video>
       </section>
 
       <!-- TRY IT -->

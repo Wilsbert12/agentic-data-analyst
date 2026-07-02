@@ -95,7 +95,7 @@ An AWS Budget threshold triggers an SNS topic, which invokes a Lambda function t
 | Agent framework | LangGraph | Modern LangChain agent runtime — recommended approach as of LangChain v1.0 (October 2025); replaces legacy `create_sql_agent` and `AgentExecutor` |
 | LLM | Claude API | Best available; swappable via config |
 | Data layer | SQLite | File-based, no server, full LangGraph compatibility |
-| Tracing | LangSmith | Native LangChain tracing and evaluation |
+| Tracing | LangSmith | Traces the LangGraph analysis phase only — the setup/schema phase uses the raw Anthropic SDK directly and is not visible to LangSmith |
 | Memory | Chroma | Conversational memory via RAG |
 | Containerisation | Docker | Single container — FastAPI serves the frontend as static files |
 | Cloud | AWS (ECR + App Runner) | ECR for images, App Runner for serverless container hosting |
@@ -183,11 +183,10 @@ The same codebase runs both locally (clone the repo, run `uvicorn api:app --relo
 - [x] GitHub Actions CI/CD pipeline — auto-deploy on push to main (app files only)
 - [x] AWS deployment + billing alarms and budget limits — email alert + automated kill switch (SNS → Lambda → App Runner pause) on budget threshold
 - [x] Architecture diagram — embedded in README and website
-- [ ] Publish to portfolio
 
 **Phase 3 — Feature development**
 - [ ] Kaggle API integration — pull datasets directly by URL
-- [ ] LangSmith tracing
+- [x] LangSmith tracing
 - [ ] Session persistence (SQLite → RDS Postgres)
 - [ ] User authentication
 - [ ] Ollama integration — swap Claude for a local open-source model via config
