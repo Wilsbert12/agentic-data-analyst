@@ -97,7 +97,7 @@ An AWS Budget threshold triggers an SNS topic, which invokes a Lambda function t
 | Data layer | SQLite | File-based, no server, full LangGraph compatibility |
 | Tracing | LangSmith | Native LangChain tracing and evaluation |
 | Memory | Chroma | Conversational memory via RAG |
-| Containerisation | Docker | Frontend + backend as separate containers |
+| Containerisation | Docker | Single container — FastAPI serves the frontend as static files |
 | Cloud | AWS (ECR + App Runner) | ECR for images, App Runner for serverless container hosting |
 | CI/CD | GitHub Actions | Auto-deploy on push to main |
 
@@ -133,14 +133,14 @@ uvicorn api:app --reload
 
 This project requires an Anthropic API key. You can obtain one at [console.anthropic.com](https://console.anthropic.com).
 
-The key is passed through for each session and never stored. If you have concerns about key handling, clone the repo and run it locally — the code is fully transparent.
+Your API key is passed to the backend for the duration of your session and written to a temporary session file on the server for session persistence. It is not logged, not stored in any database, and is not accessible to other users. The session file is ephemeral — it is lost when the server restarts. Do not use a key with high spending limits.
 
 ---
 
 ## Known Limitations
 
-**Session lifecycle — no persistence across server restarts.**
-Sessions are stored in an in-memory Python dictionary in FastAPI. If the server restarts, all active sessions are lost. Users would need to re-upload their data and re-run the setup phase. Solving this properly requires persisting session state to a database (e.g. Redis or PostgreSQL).
+**Session lifecycle — no persistence across browser refreshes.**
+Sessions survive server restarts — session state is written to `sessions/{session_id}/session.json` and restored from disk on cache miss. However, each browser tab generates a new session ID on load, so refreshing the page starts a fresh session. Users would need to re-upload their data and re-run the setup phase after a refresh. Solving this properly requires a login system that maps users to persistent session IDs.
 
 **No user accounts or session resume.**
 Each browser session gets a unique session ID. There is no login system, so a user cannot resume a previous session after closing the browser. All session data is tied to the current browser tab.
