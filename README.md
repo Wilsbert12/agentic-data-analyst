@@ -105,7 +105,7 @@ An AWS Budget threshold triggers an SNS topic, which invokes a Lambda function t
 
 ## Observability
 
-Every analysis run is traced via LangSmith. The trace below shows the agent generating a SQL query, executing it via the `run_sql` tool, and returning the result — all results are backed by actual query execution against the uploaded dataset.
+Every analysis run is traced via LangSmith. The screenshot below shows multiple runs across a session — each cycle of reasoning, SQL generation via the `run_sql` tool, and result interpretation is logged as a separate run.
 
 ![LangSmith trace](static/images/LangSmith_screenshot.png)
 
