@@ -8,6 +8,8 @@ flowchart TD
     end
     ECR -->|deploy| AR
 
+    AG -.->|async trace| LS[LangSmith]
+
     Browser -->|1. request| FA
     FA -->|11. response| Browser
 
