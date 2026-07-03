@@ -762,6 +762,7 @@
           <p>This is an agentic data analyst — a tool that lets you explore and analyse structured datasets through a natural language conversation, without writing a single line of SQL. It is being built in four phases, as outlined below. The current version runs on Claude Sonnet, Anthropic's state-of-the-art language model. Support for local open-source models is planned for a later phase.</p>
           <p>Upload one or more CSV files and ask business questions in plain English. The agent translates your question into SQL, executes it against your dataset, and returns a clear, grounded answer — all results are backed by actual query execution, not model inference.</p>
           <p>Across multiple analyses, the tool builds up a memory of past findings. Built on a LangGraph agent with a two-tier architecture, past analyses are stored in a Chroma vector database and retrieved via RAG (Retrieval-Augmented Generation), so relevant context is injected into each new question without passing the full conversation history on every API call.</p>
+          <p>The analysis phase is instrumented with <a href="https://smith.langchain.com" target="_blank">LangSmith</a>, providing full observability into every agent run — including the SQL queries generated, tool calls made, and token usage per step.</p>
 
           <div class="phases-grid">
             <div class="phase-card done">
